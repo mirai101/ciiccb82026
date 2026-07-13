@@ -146,6 +146,4 @@ SUCCESS!
 
 *Bringing Ideas to Life Through Imagination*
 
-[My Portfolio](https://tumolva.vercel.app) • [Facebook](https://fb.com/corei9.9000k)
-
 </div>
