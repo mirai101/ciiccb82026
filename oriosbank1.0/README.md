@@ -36,17 +36,28 @@ Orios Bank is a sleek, secure, and fully responsive digital banking application.
 - **MongoDB**: A running instance (default: `localhost:27017` 👈).
 - **Python 🐍 3**: (optional, for CLI usage).
 
-### Installation & Setup 👨‍💻
+### Installation for (Windows) 🤣
+
+```
+Just download IDEA.exe 🤨
+```
+
+**Second**
+Open your ram eater browser and navigate to `http://localhost:8080`  👈
+
+
+### Installation & Setup (Linux) 👨‍💻
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd oriosbank-refactored
+   git clone https://github.com/mirai101/ciiccb282026.git
+   cd ciiccb82026/oriosbank1.0
    ```
 
 2. **Start MongoDB**:
    ```bash
-   mongod
+   sudo systemctl start mongod
+   sudo systemctl status mongod
    ```
 
 3. **Build and Run the Backend**:
@@ -63,13 +74,13 @@ Orios Bank is a sleek, secure, and fully responsive digital banking application.
 
 - **Admin Account**:
   - Email: `admin@orios.com`
-  - Password: `admin123`
+  - Password: `venom456`
 - **User Account**: Register a new account via the UI or CLI.
 
 ## Project Structure 🧑‍🔬
 
 ```
-oriosbank-refactored/
+oriosbank1.0-/
 ├── backend/                        # Spring Boot application
 │   ├── src/main/java/              # Java source code
 │   │   └── com/oriosbank/api/
