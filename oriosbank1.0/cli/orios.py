@@ -16,6 +16,13 @@ API_BASE_URL = "http://localhost:8080/api"
 TOKEN_FILE = os.path.expanduser("~/.orios_token")
 USER_DATA_FILE = os.path.expanduser("~/.orios_user")
 
+# --- Limits ---
+MAX_DEPOSIT = 100_000.0
+MAX_WITHDRAWAL = 50_000.0
+MAX_TRANSFER = 100_000.0
+MAX_LOAN_AMOUNT = 2_000_000.0
+MAX_ACCOUNTS_PER_TYPE = 2
+
 custom_theme = Theme({
     "info": "cyan",
     "warning": "yellow",
@@ -177,16 +184,37 @@ def open_account(acc_type, initial_deposit=0.0):
     handle_response(response, f"{acc_type.capitalize()} account opened successfully!")
 
 def deposit(acc_id, amount, desc):
+    if amount <= 0:
+        console.print("[error]✘ Deposit amount must be positive.[/error]")
+        return
+    if amount > MAX_DEPOSIT:
+        console.print(f"[error]✘ Deposit limit exceeded. Maximum per transaction: ${MAX_DEPOSIT:,.2f}[/error]")
+        return
     payload = {"accountId": acc_id, "amount": amount, "description": desc}
     response = requests.post(f"{API_BASE_URL}/accounts/deposit", json=payload, headers=get_headers())
-    handle_response(response, f"Deposited ${amount} to {acc_id}")
+    handle_response(response, f"Deposited ${amount:,.2f} to {acc_id}")
 
 def withdraw(acc_id, amount, desc=None):
+    if amount <= 0:
+        console.print("[error]✘ Withdrawal amount must be positive.[/error]")
+        return
+    if amount > MAX_WITHDRAWAL:
+        console.print(f"[error]✘ Withdrawal limit exceeded. Maximum per transaction: ${MAX_WITHDRAWAL:,.2f}[/error]")
+        return
     payload = {"accountId": acc_id, "amount": amount, "description": desc}
     response = requests.post(f"{API_BASE_URL}/accounts/withdraw", json=payload, headers=get_headers())
-    handle_response(response, f"Withdrew ${amount} from {acc_id}")
+    handle_response(response, f"Withdrew ${amount:,.2f} from {acc_id}")
 
 def transfer(from_id, to_id, amount, desc):
+    if amount <= 0:
+        console.print("[error]✘ Transfer amount must be positive.[/error]")
+        return
+    if amount > MAX_TRANSFER:
+        console.print(f"[error]✘ Transfer limit exceeded. Maximum per transaction: ${MAX_TRANSFER:,.2f}[/error]")
+        return
+    if from_id == to_id:
+        console.print("[error]✘ Cannot transfer to the same account.[/error]")
+        return
     payload = {
         "fromAccountId": from_id,
         "toAccountId": to_id,
@@ -194,7 +222,7 @@ def transfer(from_id, to_id, amount, desc):
         "description": desc
     }
     response = requests.post(f"{API_BASE_URL}/accounts/transfer", json=payload, headers=get_headers())
-    handle_response(response, f"Transferred ${amount} from {from_id} to {to_id}")
+    handle_response(response, f"Transferred ${amount:,.2f} from {from_id} to {to_id}")
 
 def toggle_visibility(acc_id):
     response = requests.post(f"{API_BASE_URL}/accounts/{acc_id}/toggle-visibility", headers=get_headers())
@@ -205,6 +233,9 @@ def toggle_visibility(acc_id):
 def request_loan(amount, interest_rate):
     if amount <= 0:
         console.print("[error]✘ Loan amount must be greater than zero.[/error]")
+        return
+    if amount > MAX_LOAN_AMOUNT:
+        console.print(f"[error]✘ Loan amount exceeded. Maximum loan: ${MAX_LOAN_AMOUNT:,.2f}[/error]")
         return
     if interest_rate < 0:
         console.print("[error]✘ Interest rate cannot be negative.[/error]")

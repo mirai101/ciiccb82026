@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 public class LoanService {
 
+    public static final double MAX_LOAN_AMOUNT = 2_000_000.0;
+
     private final LoanRepository loanRepository;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
@@ -39,6 +41,10 @@ public class LoanService {
     public LoanDto requestLoan(String customerId, LoanRequestDto dto) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        if (dto.getAmount() > MAX_LOAN_AMOUNT) {
+            throw new IllegalArgumentException("Loan amount cannot exceed $" + MAX_LOAN_AMOUNT);
+        }
 
         Loan loan = Loan.builder()
                 .loanId(UUID.randomUUID().toString().substring(0, 8).toUpperCase())

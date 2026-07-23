@@ -268,7 +268,8 @@ window.showRequestLoan = () => {
     modalForm.innerHTML = `
         <div class="form-group">
             <label class="form-label">Loan Amount</label>
-            <input type="number" id="loan-amount" class="form-input" placeholder="Enter loan amount" min="100" step="0.01" required>
+            <input type="number" id="loan-amount" class="form-input" placeholder="Enter loan amount" min="100" max="2000000" step="0.01" required>
+            <small style="color:var(--text-muted)">Max: $2,000,000</small>
         </div>
         <div class="form-group">
             <label class="form-label">Interest Rate (%)</label>
@@ -933,7 +934,8 @@ async function renderTransfer() {
                 </div>
                 <div class="input-group">
                     <i class="fas fa-dollar-sign"></i>
-                    <input type="number" id="transfer-amount" placeholder="Amount" step="0.01" min="0.01" required>
+                    <input type="number" id="transfer-amount" placeholder="Amount" step="0.01" min="0.01" max="100000" required>
+                    <small style="color:var(--text-muted)">Max per transaction: $100,000</small>
                 </div>
                 <div class="input-group">
                     <i class="fas fa-comment"></i>
@@ -959,7 +961,8 @@ window.showOpenAccount = () => {
         </div>
         <div class="input-group">
             <i class="fas fa-dollar-sign"></i>
-            <input type="number" id="acc-deposit" placeholder="Initial Deposit" min="0" step="0.01" value="100" required>
+            <input type="number" id="acc-deposit" placeholder="Initial Deposit" min="0" max="100000000" step="0.01" value="100" required>
+            <small style="color:var(--text-muted)">Max balance: $100,000,000 | Max 2 accounts per type</small>
         </div>
         <button type="submit" class="btn-primary">Open Account</button>
     `;
@@ -982,7 +985,8 @@ window.showDeposit = (accountId) => {
         </div>
         <div class="input-group">
             <i class="fas fa-dollar-sign"></i>
-            <input type="number" id="dep-amount" placeholder="Deposit Amount" min="0.01" step="0.01" required>
+            <input type="number" id="dep-amount" placeholder="Deposit Amount" min="0.01" max="100000" step="0.01" required>
+            <small style="color:var(--text-muted)">Max per transaction: $100,000</small>
         </div>
         <div class="input-group">
             <i class="fas fa-comment"></i>
@@ -1009,7 +1013,8 @@ window.showWithdraw = (accountId) => {
         </div>
         <div class="input-group">
             <i class="fas fa-dollar-sign"></i>
-            <input type="number" id="wit-amount" placeholder="Withdrawal Amount" min="0.01" step="0.01" required>
+            <input type="number" id="wit-amount" placeholder="Withdrawal Amount" min="0.01" max="50000" step="0.01" required>
+            <small style="color:var(--text-muted)">Max per transaction: $50,000</small>
         </div>
         <div class="input-group">
             <i class="fas fa-comment"></i>

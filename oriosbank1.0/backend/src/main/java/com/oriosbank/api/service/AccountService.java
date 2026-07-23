@@ -24,6 +24,11 @@ import java.util.stream.Collectors;
 @Service
 public class AccountService {
 
+    public static final double MAX_DEPOSIT = 100_000.0;
+    public static final double MAX_WITHDRAWAL = 50_000.0;
+    public static final double MAX_TRANSFER = 100_000.0;
+    private static final int MAX_ACCOUNTS_PER_TYPE = 2;
+
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
@@ -47,6 +52,21 @@ public class AccountService {
     public AccountDto openAccount(String customerId, String type, double initialDeposit) {
         Customer customer = customerRepository.findById(customerId)
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        // Enforce max 2 accounts per type per user
+        String typeUpper = type.toUpperCase();
+        long existingCount = accountRepository.findByCustomerCustomerId(customerId).stream()
+            .filter(a -> typeUpper.equals(a.getAccountType()))
+            .count();
+        if (existingCount >= MAX_ACCOUNTS_PER_TYPE) {
+            throw new IllegalArgumentException("Maximum " + MAX_ACCOUNTS_PER_TYPE + " " + typeUpper + " accounts allowed per user");
+        }
+
+        // Enforce max balance limit
+        double maxBalance = "SAVINGS".equalsIgnoreCase(type) ? SavingsAccount.MAX_BALANCE : CheckingAccount.MAX_BALANCE;
+        if (initialDeposit > maxBalance) {
+            throw new InvalidAmountException("Initial deposit cannot exceed $" + maxBalance);
+        }
 
         Account account;
         String accountId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -109,11 +129,20 @@ public class AccountService {
         if (amount <= 0) {
             throw new InvalidAmountException("Amount must be positive");
         }
+        if (amount > MAX_DEPOSIT) {
+            throw new InvalidAmountException("Deposit limit exceeded. Maximum deposit per transaction is $" + MAX_DEPOSIT);
+        }
 
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-        account.setBalance(account.getBalance() + amount);
+        double newBalance = account.getBalance() + amount;
+        double maxBalance = (account instanceof SavingsAccount) ? SavingsAccount.MAX_BALANCE : CheckingAccount.MAX_BALANCE;
+        if (newBalance > maxBalance) {
+            throw new InvalidAmountException("Deposit would exceed maximum account balance of $" + maxBalance);
+        }
+
+        account.setBalance(newBalance);
         accountRepository.save(account);
 
         Transaction tx = Transaction.builder()
@@ -134,6 +163,9 @@ public class AccountService {
     public void withdraw(String customerId, WithdrawRequestDto dto) {
         if (dto.getAmount() <= 0) {
             throw new InvalidAmountException("Amount must be positive");
+        }
+        if (dto.getAmount() > MAX_WITHDRAWAL) {
+            throw new InvalidAmountException("Withdrawal limit exceeded. Maximum withdrawal per transaction is $" + MAX_WITHDRAWAL);
         }
 
         Account account = accountRepository.findById(dto.getAccountId())
@@ -172,11 +204,42 @@ public class AccountService {
 
     @Transactional
     public void withdrawInternal(String customerId, String accountId, double amount, String description) {
-        withdraw(customerId, WithdrawRequestDto.builder()
-                .accountId(accountId)
-                .amount(amount)
-                .description(description)
-                .build());
+        if (amount <= 0) {
+            throw new InvalidAmountException("Amount must be positive");
+        }
+
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        if (!account.getCustomer().getCustomerId().equals(customerId)) {
+            throw new UnauthorizedAccessException("You do not own this account");
+        }
+
+        if (account instanceof SavingsAccount) {
+            SavingsAccount savings = (SavingsAccount) account;
+            if (account.getBalance() - amount < savings.getMinimumBalance()) {
+                throw new InsufficientBalanceException("Minimum balance of $" + savings.getMinimumBalance() + " must be maintained");
+            }
+        } else if (account instanceof CheckingAccount) {
+            CheckingAccount checking = (CheckingAccount) account;
+            if (amount > account.getBalance() + checking.getOverdraftLimit()) {
+                throw new InsufficientBalanceException("Overdraft limit of $" + checking.getOverdraftLimit() + " exceeded");
+            }
+        }
+
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
+
+        Transaction tx = Transaction.builder()
+            .transactionId(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+            .type("WITHDRAW")
+            .amount(amount)
+            .account(account)
+            .fromAccount(accountId)
+            .timestamp(LocalDateTime.now())
+            .description(description != null ? description : "Withdrawal from " + accountId)
+            .build();
+        transactionRepository.save(tx);
     }
 
     @Transactional
@@ -184,6 +247,9 @@ public class AccountService {
     public void transfer(String customerId, TransferRequestDto dto) {
         if (dto.getAmount() <= 0) {
             throw new InvalidAmountException("Amount must be positive");
+        }
+        if (dto.getAmount() > MAX_TRANSFER) {
+            throw new InvalidAmountException("Transfer limit exceeded. Maximum transfer per transaction is $" + MAX_TRANSFER);
         }
 
         Account from = accountRepository.findById(dto.getFromAccountId())

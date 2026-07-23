@@ -9,6 +9,7 @@ public class CheckingAccount extends Account {
 
     private static final double INTEREST_RATE = 0.005;
     private static final double OVERDRAFT_LIMIT = 500.0;
+    public static final double MAX_BALANCE = 100_000_000.0;
 
     @Override
     public String getAccountType() {
