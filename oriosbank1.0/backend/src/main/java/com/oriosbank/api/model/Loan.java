@@ -1,11 +1,10 @@
 package com.oriosbank.api.model;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -24,21 +23,19 @@ public class Loan {
     private Customer customer;
 
     private Double amount;
-    
+
     private Double remainingBalance;
 
     private Double interestRate;
 
     @Builder.Default
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED, PAID
+    private String status = "PENDING";
 
     @Builder.Default
     private boolean autoDebtEnabled = false;
 
     @CreatedDate
-    @Field("created_at")
     private LocalDateTime createdAt;
 
-    @Field("paid_at")
     private LocalDateTime paidAt;
 }

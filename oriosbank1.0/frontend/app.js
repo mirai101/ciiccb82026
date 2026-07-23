@@ -31,15 +31,16 @@ async function init() {
     if (state.token) {
         const success = await fetchUserDetails();
         if (success) {
+            if (loader) loader.style.display = 'none';
             showDashboard();
         } else {
+            if (loader) loader.style.display = 'none';
             showAuth();
         }
     } else {
+        if (loader) loader.style.display = 'none';
         showAuth();
     }
-    // Hide initial loader
-    if (loader) loader.style.display = 'none';
 }
 
 // Auth Functions

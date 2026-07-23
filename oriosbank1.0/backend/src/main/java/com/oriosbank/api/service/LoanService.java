@@ -55,9 +55,10 @@ public class LoanService {
 
         // Check weekly loan request frequency limit
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-        Query countQuery = new Query(Criteria.where("customer.$id").is(customerId)
-            .and("createdAt").gte(sevenDaysAgo));
-        long recentLoans = mongoTemplate.count(countQuery, Loan.class);
+        List<Loan> allLoans = loanRepository.findByCustomerId(customerId);
+        long recentLoans = allLoans.stream()
+            .filter(l -> l.getCreatedAt() != null && !l.getCreatedAt().isBefore(sevenDaysAgo))
+            .count();
         if (recentLoans >= MAX_LOANS_PER_WEEK) {
             throw new IllegalArgumentException("Loan request limit reached. Maximum " + MAX_LOANS_PER_WEEK + " loan requests per 7 days");
         }
