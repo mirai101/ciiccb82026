@@ -10,6 +10,9 @@ import com.oriosbank.api.model.Loan;
 import com.oriosbank.api.repository.AccountRepository;
 import com.oriosbank.api.repository.CustomerRepository;
 import com.oriosbank.api.repository.LoanRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,15 +31,18 @@ public class LoanService {
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final MongoTemplate mongoTemplate;
 
     public LoanService(LoanRepository loanRepository,
                        CustomerRepository customerRepository,
                        AccountRepository accountRepository,
-                       AccountService accountService) {
+                       AccountService accountService,
+                       MongoTemplate mongoTemplate) {
         this.loanRepository = loanRepository;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.accountService = accountService;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public LoanDto requestLoan(String customerId, LoanRequestDto dto) {
@@ -48,8 +54,10 @@ public class LoanService {
         }
 
         // Check weekly loan request frequency limit
-        long recentLoans = loanRepository.countByCustomerIdAndCreatedAtAfter(
-            customerId, LocalDateTime.now().minusDays(7));
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        Query countQuery = new Query(Criteria.where("customer.$id").is(customerId)
+            .and("createdAt").gte(sevenDaysAgo));
+        long recentLoans = mongoTemplate.count(countQuery, Loan.class);
         if (recentLoans >= MAX_LOANS_PER_WEEK) {
             throw new IllegalArgumentException("Loan request limit reached. Maximum " + MAX_LOANS_PER_WEEK + " loan requests per 7 days");
         }

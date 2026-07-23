@@ -1,5 +1,7 @@
 package com.oriosbank.api.security;
 
+import com.oriosbank.api.model.Customer;
+import com.oriosbank.api.repository.CustomerRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,14 +19,16 @@ import java.util.Collections;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CustomerRepository customerRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil, CustomerRepository customerRepository) {
         this.jwtUtil = jwtUtil;
+        this.customerRepository = customerRepository;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                    HttpServletResponse response, 
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
@@ -37,13 +41,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (jwtUtil.validateToken(token)) {
             String customerId = jwtUtil.extractCustomerId(token);
-            String email = jwtUtil.extractEmail(token);
+            long tokenVersion = jwtUtil.extractTokenVersion(token);
 
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                customerId, null, Collections.emptyList()
-            );
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            var customerOpt = customerRepository.findById(customerId);
+            if (customerOpt.isPresent() && customerOpt.get().getTokenVersion() == tokenVersion) {
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    customerId, null, Collections.emptyList()
+                );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
 
         filterChain.doFilter(request, response);

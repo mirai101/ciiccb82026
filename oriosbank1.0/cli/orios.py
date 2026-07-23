@@ -128,6 +128,10 @@ def login(email, password):
         show_dashboard()
 
 def register(name, email, phone, password):
+    import re
+    if not re.match(r'^0[0-9]{10}$', phone):
+        console.print("[error]✘ Phone number must be exactly 11 digits starting with 0 (e.g. 09123456789)[/error]")
+        return
     payload = {
         "fullName": name,
         "email": email,

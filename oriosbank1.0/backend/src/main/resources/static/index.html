@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orios Bank - Secure Banking</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -16,8 +18,14 @@
     </div>
 
     <div class="container" id="app">
+        <!-- Initial Loading Screen -->
+        <div id="initial-loader" style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:15px;">
+            <div class="loader"></div>
+            <p style="color:var(--text-muted);">Loading Orios Bank...</p>
+        </div>
+
         <!-- Auth Section -->
-        <div id="auth-section" class="fade-in">
+        <div id="auth-section" class="fade-in" style="display:none;">
             <header>
                 <div class="logo">
                     <i class="fas fa-shield-halved"></i>
@@ -60,11 +68,11 @@
                     </div>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="reg-password" placeholder="Password" required>
+                        <input type="password" id="reg-password" placeholder="Password (min 6 chars)" required minlength="6">
                     </div>
                     <div class="input-group">
                         <i class="fas fa-phone"></i>
-                        <input type="tel" id="reg-phone" placeholder="Phone Number" required>
+                        <input type="tel" id="reg-phone" placeholder="Phone (e.g. 09123456789)" pattern="^0[0-9]{10}$" title="11 digits starting with 0" required>
                     </div>
                     <button type="submit" class="btn-primary">Get Started <i class="fas fa-user-plus"></i></button>
                 </form>
@@ -124,6 +132,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js" defer></script>
 </body>
 </html>

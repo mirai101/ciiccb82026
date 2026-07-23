@@ -13,9 +13,13 @@ import com.oriosbank.api.repository.LoanRepository;
 import com.oriosbank.api.repository.TransactionRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,17 +41,20 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
     private final CardRepository cardRepository;
     private final LoanRepository loanRepository;
+    private final MongoTemplate mongoTemplate;
 
     public AccountService(AccountRepository accountRepository,
                           CustomerRepository customerRepository,
                           TransactionRepository transactionRepository,
                           CardRepository cardRepository,
-                          LoanRepository loanRepository) {
+                          LoanRepository loanRepository,
+                          MongoTemplate mongoTemplate) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
         this.transactionRepository = transactionRepository;
         this.cardRepository = cardRepository;
         this.loanRepository = loanRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Transactional
@@ -126,8 +133,11 @@ public class AccountService {
         // Check daily deposit frequency limit
         List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
             .map(Account::getAccountId).collect(Collectors.toList());
-        long todayDeposits = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
-            accountIds, "DEPOSIT", LocalDateTime.now().toLocalDate().atStartOfDay());
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        Query countQuery = new Query(Criteria.where("account.$id").in(accountIds)
+            .and("type").is("DEPOSIT")
+            .and("timestamp").gte(startOfDay));
+        long todayDeposits = mongoTemplate.count(countQuery, Transaction.class);
         if (todayDeposits >= MAX_DEPOSITS_PER_DAY) {
             throw new InvalidAmountException("Daily deposit limit reached. Maximum " + MAX_DEPOSITS_PER_DAY + " deposits per day");
         }
@@ -183,8 +193,11 @@ public class AccountService {
         // Check daily withdrawal frequency limit
         List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
             .map(Account::getAccountId).collect(Collectors.toList());
-        long todayWithdrawals = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
-            accountIds, "WITHDRAW", LocalDateTime.now().toLocalDate().atStartOfDay());
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        Query countQuery = new Query(Criteria.where("account.$id").in(accountIds)
+            .and("type").is("WITHDRAW")
+            .and("timestamp").gte(startOfDay));
+        long todayWithdrawals = mongoTemplate.count(countQuery, Transaction.class);
         if (todayWithdrawals >= MAX_WITHDRAWALS_PER_DAY) {
             throw new InvalidAmountException("Daily withdrawal limit reached. Maximum " + MAX_WITHDRAWALS_PER_DAY + " withdrawals per day");
         }
@@ -276,8 +289,11 @@ public class AccountService {
         // Check daily transfer frequency limit
         List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
             .map(Account::getAccountId).collect(Collectors.toList());
-        long todayTransfers = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
-            accountIds, "TRANSFER_OUT", LocalDateTime.now().toLocalDate().atStartOfDay());
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        Query countQuery = new Query(Criteria.where("account.$id").in(accountIds)
+            .and("type").is("TRANSFER_OUT")
+            .and("timestamp").gte(startOfDay));
+        long todayTransfers = mongoTemplate.count(countQuery, Transaction.class);
         if (todayTransfers >= MAX_TRANSFERS_PER_DAY) {
             throw new InvalidAmountException("Daily transfer limit reached. Maximum " + MAX_TRANSFERS_PER_DAY + " transfers per day");
         }

@@ -24,7 +24,7 @@ public class CustomerDto {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    @Pattern(regexp = "^\\+?[0-9\\s-]{10,20}$", message = "Invalid phone number")
+    @Pattern(regexp = "^0[0-9]{10}$", message = "Phone number must be exactly 11 digits starting with 0")
     private String phone;
 
     private String role;

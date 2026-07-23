@@ -35,9 +35,12 @@ public class Customer {
     private String hashedPassword;
 
     private String phone;
-    
+
     @Builder.Default
-    private String role = "USER"; // USER or ADMIN
+    private String role = "USER";
+
+    @Builder.Default
+    private long tokenVersion = 0;
 
     @CreatedDate
     @Field("registered_at")

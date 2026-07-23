@@ -50,12 +50,13 @@ public class AuthService {
             .email(dto.getEmail())
             .hashedPassword(passwordHasher.hash(dto.getPassword()))
             .phone(dto.getPhone())
+            .tokenVersion(0)
             .build();
 
         customerRepository.save(customer);
-        
+
         String role = customer.getRole();
-        String token = jwtUtil.generateToken(customer.getCustomerId(), customer.getEmail(), role);
+        String token = jwtUtil.generateToken(customer.getCustomerId(), customer.getEmail(), role, customer.getTokenVersion());
 
         return AuthResponseDto.builder()
             .token(token)
@@ -74,7 +75,7 @@ public class AuthService {
      * @return AuthResponseDto containing the JWT token and user info
      * @throws UnauthorizedAccessException if credentials are invalid
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponseDto login(LoginRequestDto dto) {
         Customer customer = customerRepository.findByEmail(dto.getEmail())
             .orElseThrow(() -> new UnauthorizedAccessException("Invalid credentials"));
@@ -83,8 +84,12 @@ public class AuthService {
             throw new UnauthorizedAccessException("Invalid credentials");
         }
 
+        // Increment token version to invalidate all previous tokens (single session)
+        customer.setTokenVersion(customer.getTokenVersion() + 1);
+        customerRepository.save(customer);
+
         String role = customer.getRole();
-        String token = jwtUtil.generateToken(customer.getCustomerId(), customer.getEmail(), role);
+        String token = jwtUtil.generateToken(customer.getCustomerId(), customer.getEmail(), role, customer.getTokenVersion());
 
         return AuthResponseDto.builder()
             .token(token)

@@ -27,6 +27,7 @@ const modalForm = document.getElementById('modal-form');
 
 // Initialize App
 async function init() {
+    const loader = document.getElementById('initial-loader');
     if (state.token) {
         const success = await fetchUserDetails();
         if (success) {
@@ -37,6 +38,8 @@ async function init() {
     } else {
         showAuth();
     }
+    // Hide initial loader
+    if (loader) loader.style.display = 'none';
 }
 
 // Auth Functions
@@ -69,6 +72,9 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
 
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -89,6 +95,9 @@ loginForm.addEventListener('submit', async (e) => {
         }
     } catch (error) {
         notify('Server connection error', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Sign In <i class="fas fa-arrow-right"></i>';
     }
 });
 
@@ -98,6 +107,16 @@ registerForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
     const phone = document.getElementById('reg-phone').value;
+
+    // Validate phone: 11 digits starting with 0
+    if (!/^0[0-9]{10}$/.test(phone)) {
+        notify('Phone number must be exactly 11 digits starting with 0', 'error');
+        return;
+    }
+
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
 
     try {
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -115,6 +134,9 @@ registerForm.addEventListener('submit', async (e) => {
         }
     } catch (error) {
         notify('Server connection error', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Get Started <i class="fas fa-user-plus"></i>';
     }
 });
 
@@ -128,26 +150,23 @@ logoutBtn.addEventListener('click', () => {
 
 async function fetchUserDetails() {
     try {
-        console.log('Fetching user details...');
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
             headers: { 'Authorization': `Bearer ${state.token}` }
         });
-        
+
         if (response.status === 401) {
-            console.warn('Session expired or invalid token');
             localStorage.removeItem('token');
             state.token = null;
+            state.user = null;
             return false;
         }
 
         if (response.ok) {
             state.user = await response.json();
-            console.log('User details fetched successfully:', state.user.fullName);
             const name = state.user.fullName || state.user.name || 'User';
             const firstName = name.trim().split(' ')[0];
             userGreeting.textContent = `Hello, ${firstName}`;
-            
-            // Better avatar: first letter of first and last name if available
+
             const nameParts = name.trim().split(/\s+/);
             let avatarText = nameParts[0].charAt(0);
             if (nameParts.length > 1) {
@@ -155,7 +174,6 @@ async function fetchUserDetails() {
             }
             userAvatar.textContent = avatarText.toUpperCase();
 
-            // Admin Access
             const adminNav = document.getElementById('admin-nav');
             if (adminNav) {
                 if (state.user.role === 'ADMIN') {
@@ -167,12 +185,9 @@ async function fetchUserDetails() {
 
             return true;
         }
-        
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Fetch user details failed:', response.status, errorData);
+
         return false;
     } catch (error) {
-        console.error('Fetch user details connection error:', error);
         return false;
     }
 }
@@ -754,7 +769,6 @@ async function loadPage(page) {
                 await renderOverview();
         }
     } catch (error) {
-        console.error(`Error loading page ${page}:`, error);
         pageContent.innerHTML = `
             <div class="error-state">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -1062,7 +1076,6 @@ async function handleIssueCard(accountId, cardType) {
             return false;
         }
     } catch (error) {
-        console.error('Issue card error:', error);
         notify('Connection error', 'error');
         return false;
     }
@@ -1248,7 +1261,6 @@ async function handleOpenAccount(type, amount) {
         return false;
     }
     try {
-        console.log(`Opening ${type} account with $${amount}...`);
         const response = await fetch(`${API_BASE_URL}/accounts/open?type=${type}&initialDeposit=${amount}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${state.token}` }
@@ -1259,12 +1271,10 @@ async function handleOpenAccount(type, amount) {
             return true;
         } else {
             const data = await response.json().catch(() => ({}));
-            console.error('Open account failed:', response.status, data);
             notify(data.message || 'Failed to open account', 'error');
             return false;
         }
     } catch (error) {
-        console.error('Open account error:', error);
         notify('Connection error', 'error');
         return false;
     }
@@ -1292,7 +1302,6 @@ async function handleDeposit(accountId, amount, description) {
             notify(data.message || 'Deposit failed', 'error');
         }
     } catch (error) {
-        console.error('Deposit error:', error);
         notify('Connection error', 'error');
     }
 }
@@ -1319,7 +1328,6 @@ async function handleWithdraw(accountId, amount, description) {
             notify(data.message || 'Withdrawal failed', 'error');
         }
     } catch (error) {
-        console.error('Withdrawal error:', error);
         notify('Connection error', 'error');
     }
 }
@@ -1359,7 +1367,6 @@ window.handleTransfer = async (e) => {
             notify(data.message || 'Transfer failed', 'error');
         }
     } catch (error) {
-        console.error('Transfer error:', error);
         notify('Connection error', 'error');
     }
 };
@@ -1376,7 +1383,6 @@ async function fetchWithAuth(endpoint) {
     try {
         return await response.json();
     } catch (e) {
-        console.error('JSON parse error for', endpoint, e);
         return null;
     }
 }
