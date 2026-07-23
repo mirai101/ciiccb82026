@@ -43,8 +43,10 @@ public class AccountController {
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<Map<String, String>> deposit(@Valid @RequestBody DepositRequestDto dto) {
-        accountService.deposit(dto);
+    public ResponseEntity<Map<String, String>> deposit(
+            @Valid @RequestBody DepositRequestDto dto,
+            Authentication auth) {
+        accountService.deposit(auth.getName(), dto);
         return ResponseEntity.ok(Map.of("message", "Deposit successful"));
     }
 

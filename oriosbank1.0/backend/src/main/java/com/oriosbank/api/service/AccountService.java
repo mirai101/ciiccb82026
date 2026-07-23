@@ -28,6 +28,9 @@ public class AccountService {
     public static final double MAX_WITHDRAWAL = 50_000.0;
     public static final double MAX_TRANSFER = 100_000.0;
     private static final int MAX_ACCOUNTS_PER_TYPE = 2;
+    private static final int MAX_TRANSFERS_PER_DAY = 5;
+    private static final int MAX_DEPOSITS_PER_DAY = 5;
+    private static final int MAX_WITHDRAWALS_PER_DAY = 5;
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
@@ -119,7 +122,16 @@ public class AccountService {
 
     @Transactional
     @CacheEvict(value = {"accounts", "balances", "transactions"}, allEntries = true)
-    public void deposit(DepositRequestDto dto) {
+    public void deposit(String customerId, DepositRequestDto dto) {
+        // Check daily deposit frequency limit
+        List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
+            .map(Account::getAccountId).collect(Collectors.toList());
+        long todayDeposits = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
+            accountIds, "DEPOSIT", LocalDateTime.now().toLocalDate().atStartOfDay());
+        if (todayDeposits >= MAX_DEPOSITS_PER_DAY) {
+            throw new InvalidAmountException("Daily deposit limit reached. Maximum " + MAX_DEPOSITS_PER_DAY + " deposits per day");
+        }
+
         depositInternal(dto.getAccountId(), dto.getAmount(), dto.getDescription());
     }
 
@@ -166,6 +178,15 @@ public class AccountService {
         }
         if (dto.getAmount() > MAX_WITHDRAWAL) {
             throw new InvalidAmountException("Withdrawal limit exceeded. Maximum withdrawal per transaction is $" + MAX_WITHDRAWAL);
+        }
+
+        // Check daily withdrawal frequency limit
+        List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
+            .map(Account::getAccountId).collect(Collectors.toList());
+        long todayWithdrawals = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
+            accountIds, "WITHDRAW", LocalDateTime.now().toLocalDate().atStartOfDay());
+        if (todayWithdrawals >= MAX_WITHDRAWALS_PER_DAY) {
+            throw new InvalidAmountException("Daily withdrawal limit reached. Maximum " + MAX_WITHDRAWALS_PER_DAY + " withdrawals per day");
         }
 
         Account account = accountRepository.findById(dto.getAccountId())
@@ -250,6 +271,15 @@ public class AccountService {
         }
         if (dto.getAmount() > MAX_TRANSFER) {
             throw new InvalidAmountException("Transfer limit exceeded. Maximum transfer per transaction is $" + MAX_TRANSFER);
+        }
+
+        // Check daily transfer frequency limit
+        List<String> accountIds = accountRepository.findByCustomerCustomerId(customerId).stream()
+            .map(Account::getAccountId).collect(Collectors.toList());
+        long todayTransfers = transactionRepository.countByAccountIdsAndTypeAndTimestampAfter(
+            accountIds, "TRANSFER_OUT", LocalDateTime.now().toLocalDate().atStartOfDay());
+        if (todayTransfers >= MAX_TRANSFERS_PER_DAY) {
+            throw new InvalidAmountException("Daily transfer limit reached. Maximum " + MAX_TRANSFERS_PER_DAY + " transfers per day");
         }
 
         Account from = accountRepository.findById(dto.getFromAccountId())

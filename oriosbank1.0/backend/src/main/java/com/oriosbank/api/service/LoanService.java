@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class LoanService {
 
     public static final double MAX_LOAN_AMOUNT = 2_000_000.0;
+    private static final int MAX_LOANS_PER_WEEK = 2;
 
     private final LoanRepository loanRepository;
     private final CustomerRepository customerRepository;
@@ -44,6 +45,13 @@ public class LoanService {
 
         if (dto.getAmount() > MAX_LOAN_AMOUNT) {
             throw new IllegalArgumentException("Loan amount cannot exceed $" + MAX_LOAN_AMOUNT);
+        }
+
+        // Check weekly loan request frequency limit
+        long recentLoans = loanRepository.countByCustomerIdAndCreatedAtAfter(
+            customerId, LocalDateTime.now().minusDays(7));
+        if (recentLoans >= MAX_LOANS_PER_WEEK) {
+            throw new IllegalArgumentException("Loan request limit reached. Maximum " + MAX_LOANS_PER_WEEK + " loan requests per 7 days");
         }
 
         Loan loan = Loan.builder()
