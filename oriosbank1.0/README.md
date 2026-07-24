@@ -12,6 +12,7 @@ Orios Bank is a sleek, secure, and fully responsive digital banking application.
 - **Loan Management**: Request loans, track remaining balances, and make manual repayments.
 - **Credit Cards**: Integrated OriosVISA and OriosMASTER card management with unique branding.
 - **Privacy Controls**: Toggle visibility for sensitive information like account and card numbers.
+- **Full-Screen TUI**: App-like terminal interface with sidebar navigation, modals, and keyboard shortcuts.
 
 ### Administrator Access 🐐
 - **System Overview**: Real-time database statistics for customers, accounts, cards, transactions, and loans.
@@ -26,6 +27,7 @@ Orios Bank is a sleek, secure, and fully responsive digital banking application.
 - **Database**: MongoDB (local instance on `localhost:27017` 👈).
 - **Frontend**: HTML5, CSS3 (Grid, Flexbox, Animations, Gradients), Vanilla JavaScript (ES6+).
 - **CLI**: Python 3.x with `requests` and `rich` libraries.
+- **TUI**: Python 3.x with `textual` framework (full-screen terminal UI).
 - **Design**: Light mode theme with floating animated blobs, smooth transitions, and responsive layout.
 
 ## Start 🐥
@@ -98,7 +100,9 @@ oriosbank1.0-/
 │   ├── style.css                   # Light mode styles
 │   └── app.js                      # Application logic
 ├── cli/                            # Command-line interface
-│   └── orios.py                    # Python CLI with interactive menu
+│   ├── orios.py                    # Python CLI with interactive menu
+│   ├── tui.py                      # Full-screen TUI (Textual framework)
+│   └── requirements.txt            # TUI dependencies
 └── README.md                       # This file
 ```
 
@@ -202,6 +206,41 @@ python3 orios.py admin loans approve LOAN123 ACC456
 python3 orios.py admin loans reject LOAN123
 python3 orios.py admin loans auto-debt LOAN123 true
 ```
+
+## TUI (Terminal User Interface) 🖥️
+
+A full-screen, app-like banking experience built with [Textual](https://textual.textualize.io/).
+
+### Setup
+```bash
+cd cli
+pip install -r requirements.txt
+python3 tui.py
+```
+
+### Features
+- **Full-screen interactive dashboard** with live stats
+- **Sidebar navigation** with keyboard shortcuts (1-7, Ctrl+A, Ctrl+L)
+- **Login/Register** screens with form validation
+- **Account management** - view balances, open checking/savings accounts
+- **Financial operations** - deposit, withdraw, and transfer with limits
+- **Loan management** - request, repay, and view loan status
+- **Transaction history** - full transaction log with filtering
+- **Admin panel** (Ctrl+A) - manage customers, accounts, loans, transactions, and DB explorer
+
+### Keyboard Shortcuts
+| Key | Action |
+|-----|--------|
+| `1` | Dashboard |
+| `2` | My Accounts |
+| `3` | Deposit |
+| `4` | Withdraw |
+| `5` | Transfer |
+| `6` | Loans |
+| `7` | Transaction History |
+| `Ctrl+A` | Admin Panel (admin only) |
+| `Ctrl+L` | Logout |
+| `Q` | Quit |
 
 ## Testing
 
