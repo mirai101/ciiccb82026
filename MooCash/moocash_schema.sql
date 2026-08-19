@@ -1,8 +1,5 @@
--- =====================================================================
--- MooCash — MySQL schema (converted from MongoDB)
 -- Import this file in phpMyAdmin: Databases -> Create "moocash"
 -- -> select it -> Import -> choose this file -> Go
--- =====================================================================
 
 CREATE DATABASE IF NOT EXISTS moocash
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
