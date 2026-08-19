@@ -94,10 +94,7 @@ class AccountServiceTest {
     private static BigDecimal money(String value) {
         return new BigDecimal(value);
     }
-
-    // ---------------------------------------------------------------
-    // openAccount
-    // ---------------------------------------------------------------
+    
     @Nested
     @DisplayName("openAccount")
     class OpenAccount {
@@ -171,9 +168,6 @@ class AccountServiceTest {
         }
     }
 
-    // ---------------------------------------------------------------
-    // deposit
-    // ---------------------------------------------------------------
     @Nested
     @DisplayName("deposit")
     class Deposit {
@@ -246,9 +240,6 @@ class AccountServiceTest {
         }
     }
 
-    // ---------------------------------------------------------------
-    // withdraw
-    // ---------------------------------------------------------------
     @Nested
     @DisplayName("withdraw")
     class Withdraw {
@@ -337,9 +328,6 @@ class AccountServiceTest {
         }
     }
 
-    // ---------------------------------------------------------------
-    // transfer
-    // ---------------------------------------------------------------
     @Nested
     @DisplayName("transfer")
     class Transfer {
@@ -421,9 +409,6 @@ class AccountServiceTest {
         }
     }
 
-    // ---------------------------------------------------------------
-    // getTotalBalance / getCustomerAccounts
-    // ---------------------------------------------------------------
     @Nested
     @DisplayName("read operations")
     class ReadOperations {
@@ -447,13 +432,7 @@ class AccountServiceTest {
             assertEquals(0, accountService.getTotalBalance("CUST0001").compareTo(money("2000.00")));
         }
     }
-
-    // ---------------------------------------------------------------
-    // issueCard  -- previously covered a builder-overwrite bug where the card
-    // holder's first name was silently dropped. That bug is now fixed in
-    // AccountService.issueCard(), so this test verifies the corrected behavior:
-    // both first and last name should appear in the card holder name.
-    // ---------------------------------------------------------------
+    
     @Nested
     @DisplayName("issueCard")
     class IssueCard {
