@@ -1,4 +1,19 @@
-# 🐮 MooCash — Modern Digital Banking System
+```
+███╗   ███╗   ██████╗    ██████╗    ██████╗   █████╗   ███████╗  ██╗  ██╗
+████╗ ████║  ██╔═══██╗  ██╔═══██╗  ██╔════╝  ██╔══██╗  ██╔════╝  ██║  ██║
+██╔████╔██║  ██║   ██║  ██║   ██║  ██║       ███████║  ███████╗  ███████║
+██║╚██╔╝██║  ██║   ██║  ██║   ██║  ██║       ██╔══██║  ╚════██║  ██╔══██║
+██║ ╚═╝ ██║  ╚██████╔╝  ╚██████╔╝  ╚██████╗  ██║  ██║  ███████║  ██║  ██║
+╚═╝     ╚═╝   ╚═════╝    ╚═════╝    ╚═════╝  ╚═╝  ╚═╝  ╚══════╝  ╚═╝  ╚═╝
+
+                          ^__^
+     I can secure U      (oo)\_______
+                        (__)\       )\/\
+                            / |----w /|
+                           /  |     / |
+```
+
+# 🐮 MooCash — Digital Banking System
 
 [![Java Version](https://img.shields.io/badge/Java-17%2B-blue.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2%2B-green.svg)](https://spring.io/projects/spring-boot)
@@ -15,7 +30,7 @@ The ecosystem includes a modern vanilla HTML5/CSS3/JS Web Interface, a rich inte
 
 ## 👨‍💻 Developer Information
 
-* **Developer:** Mark Jeferson D. Tumolva
+* **Developer:** mirai & frog
 * **Tech Stack:** Java 17 | Spring Boot | MySQL | JWT & BCrypt | HTML5/CSS/JS | Python (Rich/Requests)
 * **Maven Artifact:** `com.moocash:moocash-api:1.0.0`
 
@@ -65,7 +80,7 @@ MooCash follows a clean, decoupled layered architecture:
 | **Monitoring** | Spring Boot Actuator | Native | Operational metrics, health checks, and info endpoints |
 | **Code Generation** | Lombok | Latest | Reduction of boilerplate getters/setters/builders |
 | **Testing** | JUnit 5 & Mockito | Starter Test | Unit and integration test suites |
-| **Terminal Client** | Python 3 | `rich`, `requests` | CLI / TUI interface with styled tables and prompts |
+| **Terminal Client** | Python 3 | `rich`, `requests` | CLI / TUI(test) interface with styled tables and prompts |
 
 ---
 
@@ -81,12 +96,12 @@ MooCash follows a clean, decoupled layered architecture:
     │       │   │   └── com
     │       │   │       └── moocash
     │       │   │           └── api
-    │       │   │               ├── controller
-    │       │   │               │   ├── AccountController.java
+    │       │   │               ├── controller                            # REST API Controllers
+    │       │   │               │   ├── AccountController.java    
     │       │   │               │   ├── AuthController.java
     │       │   │               │   ├── LoanController.java
     │       │   │               │   └── TransactionController.java
-    │       │   │               ├── dto
+    │       │   │               ├── dto                                  # Data Transfer Objects (DTOs)
     │       │   │               │   ├── AccountDto.java
     │       │   │               │   ├── AuthResponseDto.java
     │       │   │               │   ├── CardDto.java
@@ -99,13 +114,13 @@ MooCash follows a clean, decoupled layered architecture:
     │       │   │               │   ├── TransactionDto.java
     │       │   │               │   ├── TransferRequestDto.java
     │       │   │               │   └── WithdrawRequestDto.java
-    │       │   │               ├── exception
+    │       │   │               ├── exception                              # Exception Handling
     │       │   │               │   ├── GlobalExceptionHandler.java
     │       │   │               │   ├── InsufficientBalanceException.java
     │       │   │               │   ├── InvalidAmountException.java
     │       │   │               │   ├── ResourceNotFoundException.java
     │       │   │               │   └── UnauthorizedAccessException.java
-    │       │   │               ├── model
+    │       │   │               ├── model                                 # JPA Entities (Domain Models)
     │       │   │               │   ├── Account.java
     │       │   │               │   ├── Card.java
     │       │   │               │   ├── CheckingAccount.java
@@ -113,28 +128,28 @@ MooCash follows a clean, decoupled layered architecture:
     │       │   │               │   ├── Loan.java
     │       │   │               │   ├── SavingsAccount.java
     │       │   │               │   └── Transaction.java
-    │       │   │               ├── MooCashApiApplication.java
-    │       │   │               ├── repository
+    │       │   │               ├── MooCashApiApplication.java            # Spring Boot Main Entrypoint
+    │       │   │               ├── repository                            # Spring Data JPA Repositories
     │       │   │               │   ├── AccountRepository.java
     │       │   │               │   ├── CardRepository.java
     │       │   │               │   ├── CustomerRepository.java
     │       │   │               │   ├── LoanRepository.java
     │       │   │               │   └── TransactionRepository.java
-    │       │   │               ├── scheduler
+    │       │   │               ├── scheduler                             # Automated Tasks
     │       │   │               │   └── LoanScheduler.java
-    │       │   │               ├── security
+    │       │   │               ├── security                              # Security Configuration & JWT Filters
     │       │   │               │   ├── JwtAuthFilter.java
     │       │   │               │   ├── JwtUtil.java
     │       │   │               │   ├── PasswordHasher.java
     │       │   │               │   └── SecurityConfig.java
-    │       │   │               └── service
+    │       │   │               └── service                               # Business Logic & Service Interfaces
     │       │   │                   ├── AccountService.java
     │       │   │                   ├── AuthService.java
     │       │   │                   ├── LoanService.java
     │       │   │                   └── TransactionService.java
     │       │   └── resources
-    │       │       ├── application.properties
-    │       │       ├── static
+    │       │       ├── application.properties                            # App Configuration (DB, JWT, Cache)  
+    │       │       ├── static                                            # Web Frontend Client
     │       │       │   ├── app.js
     │       │       │   └── index.html
     │       │       └── static1.zip
@@ -144,12 +159,12 @@ MooCash follows a clean, decoupled layered architecture:
     │                   └── moocash
     │                       └── api
     │                           └── service
-    │                               └── AccountServiceTest.java
-    ├── cli
+    │                               └── AccountServiceTest.java          # Service Layer Unit Tests
+    ├── cli                                                              # Python TUI/CLI Application
     │   ├── moocash.py
     │   ├── requirements.txt
-    │   └── tui.py
-    └── moocash_schema.sql
+    │   └── tui.py                                                       # Python TUI is for testing only
+    └── moocash_schema.sql                                               # MySQL schematics
 ```
 
 ---
@@ -179,7 +194,7 @@ The database is built on MySQL (`moocash_schema.sql`). The relational mappings e
 2. **`accounts`**
    * `account_id` (`VARCHAR(36)`, PK) - Generated bank account number.
    * `customer_id` (`VARCHAR(36)`, FK -> `customers.customer_id`).
-   * `balance` (`DOUBLE`) - Account net balance.
+   * `balance` (`BigDecimal`) - Account net balance.
    * `status` (`VARCHAR(255)`) - `ACTIVE`, `HOLD`, `BLOCKED`.
    * `is_hidden` (`BOOLEAN`) - Privacy mask toggle in UI.
    * `created_at` (`DATETIME`).
@@ -187,7 +202,7 @@ The database is built on MySQL (`moocash_schema.sql`). The relational mappings e
 3. **`transactions`**
    * `transaction_id` (`VARCHAR(36)`, PK) - Immutable record ID.
    * `type` (`VARCHAR(255)`) - `INITIAL_DEPOSIT`, `DEPOSIT`, `WITHDRAW`, `TRANSFER_IN`, `TRANSFER_OUT`.
-   * `amount` (`DOUBLE`).
+   * `amount` (`BigDecimal`).
    * `timestamp` (`DATETIME`).
    * `account_id` (`VARCHAR(36)`, FK -> `accounts.account_id`).
    * `from_account`, `to_account` (`VARCHAR(255)`).
@@ -196,8 +211,8 @@ The database is built on MySQL (`moocash_schema.sql`). The relational mappings e
 4. **`loans`**
    * `loan_id` (`VARCHAR(36)`, PK).
    * `customer_id` (`VARCHAR(36)`, FK).
-   * `principal_amount` (`DOUBLE`).
-   * `remaining_balance` (`DOUBLE`).
+   * `principal_amount` (`BigDecimal`).
+   * `remaining_balance` (`BigDecimal`).
    * `interest_rate` (`DOUBLE`).
    * `status` (`VARCHAR(255)`) - `PENDING`, `APPROVED`, `REJECTED`, `PAID`.
    * `auto_debt` (`BOOLEAN`) - Toggle for automated repayment deduction.
@@ -284,7 +299,7 @@ MooCash includes an interactive terminal user interface (`moocash.py`) that conn
 ---
 
 ### Step 1: Database Setup
-1. Start your MySQL Server (e.g., via XAMPP, Docker, or native service).
+1. Start your MySQL Server (via XAMPP service).
 2. Create a database named `moocash`.
 3. Import `moocash_schema.sql` into MySQL / phpMyAdmin:
    ```bash
@@ -321,17 +336,17 @@ spring.cache.type=simple
 ---
 
 ### Step 3: Build & Run the Backend
-Using Maven Wrapper:
+Using Maven:
 
 ```bash
 # Clean and compile
-./mvnw clean package -DskipTests
+./mvn clean package -DskipTests
 
 # Run unit test suite
-./mvnw test
+./mvn test
 
 # Start the Spring Boot Application
-./mvnw spring-boot:run
+./mvn spring-boot:run
 ```
 The REST API will be accessible at `http://localhost:8080`.
 
@@ -362,7 +377,7 @@ http://localhost:8080/index.html
 The project contains unit tests verifying account operations, loan processing, and transfer integrity:
 
 ```bash
-./mvnw test
+./mvn test
 ```
 
 **Test Coverage Highlights (`com.moocash.api.service`):**
@@ -374,5 +389,5 @@ The project contains unit tests verifying account operations, loan processing, a
 
 ## 📄 License & Attribution
 
-Developed by **Mark Jeferson D. Tumolva** as a complete banking platform demonstration.
+Developed by **mirai & frog** as a complete banking platform demonstration.
 All rights reserved.
