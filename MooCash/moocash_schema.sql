@@ -11,9 +11,7 @@ USE moocash;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ---------------------------------------------------------------------
 -- customers
--- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS customers;
 CREATE TABLE customers (
   customer_id     VARCHAR(36)  NOT NULL,
@@ -29,9 +27,7 @@ CREATE TABLE customers (
   UNIQUE KEY uk_customers_email (email)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
 -- accounts (base table — JOINED inheritance)
--- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS accounts;
 CREATE TABLE accounts (
   account_id  VARCHAR(36) NOT NULL,
@@ -65,9 +61,7 @@ CREATE TABLE savings_accounts (
       REFERENCES accounts (account_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
 -- cards
--- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS cards;
 CREATE TABLE cards (
   card_id        VARCHAR(36) NOT NULL,
@@ -89,9 +83,7 @@ CREATE TABLE cards (
       REFERENCES customers (customer_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
 -- loans
--- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS loans;
 CREATE TABLE loans (
   loan_id            VARCHAR(36) NOT NULL,
@@ -109,9 +101,7 @@ CREATE TABLE loans (
       REFERENCES customers (customer_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
 -- transactions
--- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS transactions;
 CREATE TABLE transactions (
   transaction_id VARCHAR(36) NOT NULL,
