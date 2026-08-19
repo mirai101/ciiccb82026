@@ -1,6 +1,7 @@
 
 """
 MooCash TUI - Full-Screen Terminal User Interface
+This is for test only..
 """
 
 import os
